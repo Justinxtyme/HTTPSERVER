@@ -15,4 +15,4 @@ server_address = ('localhost', 8000)
 httpd = HTTPServer(server_address, CustomHandler)
 
 # START SERVER TO ALLOW CONNECT
-httpd.startforever()
+httpd.serve_forever()
