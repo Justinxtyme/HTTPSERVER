@@ -7,6 +7,10 @@ server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 #SETTING HOST AND PORT
 server_address = ('localhost', 65432)
+
+# SET TIMEOUT
+s.settimeout(5)  # Timeout after 5 seconds
+
 #BIND SOCKET TO SERVER ADRESS
 server_socket.bind(server_address)
 print(f"Server listening on {server_address}")
