@@ -21,7 +21,15 @@ print(f"Connection from {client_address}")
 #RECIEVE DATA FROM CLIENT
 data = connection.recv(1024)  # Read up to 1024 bytes(adjustable)
 print(f"Received: {data.decode('utf-8')}")
-
+#FOR BIGGER TRANSFERS
+"""
+data = b""
+while True:
+    chunk = s.recv(1024)  # Read in chunks
+    if not chunk:
+        break
+    data += chunk
+               """
 #SEND RESPONSE TO CLIENT
 connection.sendall(b"Hello, Client!") 
 
