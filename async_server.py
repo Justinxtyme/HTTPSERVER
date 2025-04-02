@@ -4,35 +4,81 @@ import socket
 async def handle_client(client_socket):
     """Handle a single client connection."""
     loop = asyncio.get_event_loop()
-    while True:
-        try:
-            # Step 1: Read data from client
-            data = await loop.sock_recv(client_socket, 1024)  # Async socket recv
-            if not data:
-                break  # Client disconnected
-            print(f"Received: {data.decode('utf-8')}")
-            
-            # Step 2: Send response
-            await loop.sock_sendall(client_socket, b"Message received!")  # Async socket send
-        except Exception as e:
-            print(f"Error: {e}")
-            break
-    client_socket.close()  # Close the connection
+
+    try:
+        # Step 1: Read the full HTTP request from the client
+        data = b""
+        while True:
+            chunk = await loop.sock_recv(client_socket, 1024)
+            if not chunk:
+                break
+            data += chunk
+        
+        # Debugging: Print raw request
+        print(f"Raw request received: {data}")
+
+        if not data:
+            # Handle empty requests
+            response = (
+                "HTTP/1.1 400 Bad Request\r\n"
+                "Content-Type: text/plain\r\n"
+                "Content-Length: 0\r\n"
+                "Connection: close\r\n"
+                "\r\n"
+            )
+            await loop.sock_sendall(client_socket, response.encode('utf-8'))
+            print("Sent 400 Bad Request due to empty input.")
+        else:
+            # Step 2: Decode and verify request
+            request = data.decode('utf-8', errors='replace').strip()
+            print(f"Decoded request: {request}")
+
+            # Ensure it's a valid HTTP request (should start with "GET ")
+            if request.startswith("GET "):
+                response_body = "Message received!"
+                response_headers = (
+                    "HTTP/1.1 200 OK\r\n"
+                    "Content-Type: text/plain\r\n"
+                    f"Content-Length: {len(response_body)}\r\n"
+                    "Connection: close\r\n"
+                    "\r\n"
+                )
+                full_response = response_headers + response_body
+            else:
+                # Handle invalid requests
+                full_response = (
+                    "HTTP/1.1 400 Bad Request\r\n"
+                    "Content-Type: text/plain\r\n"
+                    "Content-Length: 0\r\n"
+                    "Connection: close\r\n"
+                    "\r\n"
+                )
+
+            await loop.sock_sendall(client_socket, full_response.encode('utf-8'))
+            print(f"Response sent: {full_response.strip()}")
+
+    except Exception as e:
+        print(f"Error handling client: {e}")
+
+    finally:
+        # Step 3: Ensure connection is properly closed
+        client_socket.close()
 
 async def main():
     # Step 1: Create a raw socket
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_socket.bind(('localhost', 8888))
+    server_socket.bind(('localhost', 8888))  # Bind to localhost
     server_socket.listen(5)  # Queue up to 5 connections
     server_socket.setblocking(False)  # Non-blocking mode for asyncio
-    print("Server listening on localhost:8888")
+    print("Server listening on http://localhost:8888")
 
-    # Step 2: Accept connections asynchronously
     loop = asyncio.get_event_loop()
+
+    # Step 2: Accept client connections asynchronously
     while True:
-        client_socket, _ = await loop.sock_accept(server_socket)  # Async accept
-        print("New client connected!")
-        asyncio.create_task(handle_client(client_socket))  # Handle client in a coroutine
+        client_socket, client_address = await loop.sock_accept(server_socket)
+        print(f"New client connected from: {client_address}")
+        asyncio.create_task(handle_client(client_socket))
 
 # Start the server
 asyncio.run(main())
