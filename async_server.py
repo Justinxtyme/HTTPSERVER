@@ -6,14 +6,17 @@ async def handle_client(client_socket):
     loop = asyncio.get_event_loop()
 
     try:
-        # Step 1: Read the full HTTP request from the client
+        # Step 1: Read the full HTTP request from the client until headers are complete
         data = b""
         while True:
             chunk = await loop.sock_recv(client_socket, 1024)
             if not chunk:
                 break
             data += chunk
-        
+            # Check for the end of headers
+            if b"\r\n\r\n" in data:
+                break
+
         # Debugging: Print raw request
         print(f"Raw request received: {data}")
 
