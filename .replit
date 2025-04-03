@@ -8,4 +8,11 @@ channel = "stable-24_05"
 run = ["sh", "-c", "launchserv"]
 
 [[ports]]
+localPort = 8443
+externalPort = 80
+exposeLocalhost = true
+
+[[ports]]
 localPort = 8888
+externalPort = 3000
+exposeLocalhost = true
