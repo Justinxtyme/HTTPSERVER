@@ -89,7 +89,7 @@ async def main():
 
     # Step 2: Wrap the socket with SSL
     ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
-    ssl_context.load_cert_chain(certfile="cert.pem", keyfile="key.pem")
+    ssl_context.load_cert_chain(certfile="server.crt", keyfile="server.key")
     server_socket = ssl_context.wrap_socket(server_socket, server_side=True, do_handshake_on_connect=False)
 
     loop = asyncio.get_event_loop()
