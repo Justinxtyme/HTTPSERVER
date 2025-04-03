@@ -70,6 +70,10 @@ async def handle_client(client_socket):
 async def main():
     # Step 1: Create a raw socket
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    
+    # Allow immediate reuse of the address after the server stops.
+    server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    
     server_socket.bind(('localhost', 8888))  # Bind to localhost
     server_socket.listen(5)  # Queue up to 5 connections
     server_socket.setblocking(False)  # Non-blocking mode for asyncio
