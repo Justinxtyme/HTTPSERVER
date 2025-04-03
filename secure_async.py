@@ -1,23 +1,19 @@
 import asyncio
-import socket
 import ssl
 
-async def handle_client(client_socket):
+async def handle_client(reader, writer):
     """Handle a single client connection."""
-    loop = asyncio.get_event_loop()
     try:
-        # Step 1: Read client's HTTP request asynchronously
-        request = await loop.sock_recv(client_socket, 1024)
+        # Read request
+        request = await reader.read(1024)
         if not request:
-            client_socket.close()
             return  # Client disconnected
 
         request = request.decode('utf-8')
         print(f"Request:\n{request}")
 
-        # Step 2: Check the request path and serve appropriate content
+        # Determine response
         if "GET / " in request:
-            # Serve HTML page
             html_content = """
             <!DOCTYPE html>
             <html>
@@ -33,10 +29,9 @@ async def handle_client(client_socket):
             </html>
             """
             response = f"HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n{html_content}"
-            await loop.sock_sendall(client_socket, response.encode('utf-8'))
+            writer.write(response.encode('utf-8'))
 
         elif "GET /styles.css" in request:
-            # Serve CSS file
             css_content = """
             body {
                 font-family: Arial, sans-serif;
@@ -53,52 +48,38 @@ async def handle_client(client_socket):
             }
             """
             response = f"HTTP/1.1 200 OK\r\nContent-Type: text/css\r\n\r\n{css_content}"
-            await loop.sock_sendall(client_socket, response.encode('utf-8'))
+            writer.write(response.encode('utf-8'))
 
         elif "GET /image.jpg" in request:
-            # Serve image file
             try:
                 with open("image.jpg", "rb") as image_file:
                     image_data = image_file.read()
 
-                response = b"HTTP/1.1 200 OK\r\nContent-Type: image/jpeg\r\n\r\n" + image_data
-                await loop.sock_sendall(client_socket, response)
+                writer.write(b"HTTP/1.1 200 OK\r\nContent-Type: image/jpeg\r\n\r\n" + image_data)
             except FileNotFoundError:
-                # Handle missing image file
                 response = "HTTP/1.1 404 Not Found\r\n\r\nImage not found."
-                await loop.sock_sendall(client_socket, response.encode('utf-8'))
+                writer.write(response.encode('utf-8'))
 
         else:
-            # Default response for unknown paths
             response = "HTTP/1.1 404 Not Found\r\n\r\nPage not found."
-            await loop.sock_sendall(client_socket, response.encode('utf-8'))
+            writer.write(response.encode('utf-8'))
 
+        await writer.drain()  # Ensure data is sent before closing
     except Exception as e:
         print(f"Error: {e}")
     finally:
-        # Step 3: Close the client connection
-        client_socket.close()
+        writer.close()
+        await writer.wait_closed()
 
 async def main():
-    # Step 1: Create a raw socket
-    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_socket.bind(('localhost', 8443))  # Use port 8443 for HTTPS
-    server_socket.listen(5)  # Queue up to 5 connections
-    server_socket.setblocking(False)  # Non-blocking mode for asyncio
-    print("Server listening on https://localhost:8443")
-
-    # Step 2: Wrap the socket with SSL
     ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
     ssl_context.load_cert_chain(certfile="server.crt", keyfile="server.key")
-    server_socket = ssl_context.wrap_socket(server_socket, server_side=True, do_handshake_on_connect=False)
 
-    loop = asyncio.get_event_loop()
+    server = await asyncio.start_server(handle_client, 'localhost', 8443, ssl=ssl_context)
+    addr = server.sockets[0].getsockname()
+    print(f"Server listening on https://{addr[0]}:{addr[1]}")
 
-    # Step 3: Accept client connections asynchronously
-    while True:
-        client_socket, client_address = await loop.sock_accept(server_socket)
-        print(f"New client connected: {client_address}")
-        asyncio.create_task(handle_client(client_socket))  # Handle client in a coroutine
+    async with server:
+        await server.serve_forever()
 
-# Start the server
 asyncio.run(main())
