@@ -13,7 +13,7 @@ async def handle_client(reader, writer):
         print(f"Request:\n{request}")
 
         # Determine response
-        if "GET / " in request:
+        if request.startswith("GET / ") or request.startswith("GET /HTTP")::
             html_content = """
             <!DOCTYPE html>
             <html>
