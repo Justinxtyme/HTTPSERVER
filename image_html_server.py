@@ -50,7 +50,7 @@ async def handle_client(reader, writer):
 
         elif request_line.startswith("GET /image.jpg"):
             try:
-                with open("image.jpg", "rb") as image_file:
+                with open("IMG_7231.webp", "rb") as image_file:
                     image_data = image_file.read()
                 writer.write(
                     b"HTTP/1.1 200 OK\r\nContent-Type: image/jpeg\r\n\r\n" + image_data
