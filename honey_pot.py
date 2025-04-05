@@ -5,7 +5,7 @@ HTML_CONTENT = b"""
 <body>
     <h1>Welcome</h1>
     <a href="/sensitive-data">Sensitive Data</a>
-     <img src="/harambe.jpg" alt="Suspicious Image" width="500">
+    <img src="/IMG_7234.webp" alt="Suspicious Image" width="500">
     <form method="POST" action="/login">
         Username: <input type="text" name="username"><br>
         Password: <input type="password" name="password"><br>
