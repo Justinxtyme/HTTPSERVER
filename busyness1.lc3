@@ -13,7 +13,6 @@ NONE  LDI  R1, VEC ;busyness ve
       AND  R0, R0, #0
       AND  R2, R1, R2 ;check busy
       BRz  FREE
-
 BUSY  AND  R2, R2, #0
       ADD  R0, R0, R2;LD to print
       ADD  R0, R0, R3;conv asci
@@ -21,9 +20,6 @@ BUSY  AND  R2, R2, #0
       TRAP x21
       LD   R7, SAVE7
       RET
-      
-
-
 FREE  ADD  R2, R2, #1
       ADD  R0, R0, R2;LD to print
       ADD  R0, R0, R3;conv asci
@@ -36,3 +32,4 @@ VEC   .FILL x4001
 MASK  .FILL x00FF
 ASCI  .FILL x0030
 SAVE7 .BLKW #1
+      .END
