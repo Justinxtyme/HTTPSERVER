@@ -1,7 +1,7 @@
+;busyness vec subroutine test
 ;subroutine NONE returns 1
 ;if no machines are busy
 ;0 if 1 or more machines busy
-;program is testing subroutine
 .ORIG x3000
 
 CHECK JSR  NONE;
