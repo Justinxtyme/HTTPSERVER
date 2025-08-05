@@ -1,4 +1,11 @@
-;returns 1 if no machines are busy
+;subroutine NONE returns 1
+;if no machines are busy
+;0 if 1 or more machines busy
+;program is testing subroutine
+.ORIG x3000
+
+CHECK JSR  NONE;
+      TRAP x25
 
 NONE  LDI  R1, VEC ;busyness ve
       LD   R2, MASK  ; 
@@ -10,7 +17,9 @@ NONE  LDI  R1, VEC ;busyness ve
 BUSY  AND  R2, R2, #0
       ADD  R0, R0, R2;LD to print
       ADD  R0, R0, R3;conv asci
+      ST   R7, SAVE7
       TRAP x21
+      LD   R7, SAVE7
       RET
       
 
@@ -18,9 +27,12 @@ BUSY  AND  R2, R2, #0
 FREE  ADD  R2, R2, #1
       ADD  R0, R0, R2;LD to print
       ADD  R0, R0, R3;conv asci
+      ST   R7, SAVE7
       TRAP x21
+      LD   R7, SAVE7
       RET
 
 VEC   .FILL x4001
 MASK  .FILL x00FF
 ASCI  .FILL x0030
+SAVE7 .BLKW #1
