@@ -6,9 +6,9 @@
 
 CHECK JSR  NONE;
       TRAP x25
-
+;NONE subroutine
 NONE  LDI  R1, VEC ;busyness ve
-      LD   R2, MASK  ; 
+      LD   R2, MASK1  ; 
       LD   R3, ASCI
       AND  R0, R0, #0
       AND  R2, R1, R2 ;check busy
@@ -28,8 +28,34 @@ FREE  ADD  R2, R2, #1
       LD   R7, SAVE7
       RET
 
+;ALL subroutine returns 1
+;if all machines are busy
+ALL   LDI  R1, VEC ;busyness ve
+      LD   R2, MASK1; 
+      LD   R3, ASCI
+      AND  R0, R0, #0
+      AND  R2, R1, R2 ;check busy
+      ADD  R2, R2, #1
+      BRz  BIZ
+      ADD  R0, R0, R3
+      ST   R7, SAVE7
+      TRAP x21
+      LD   R7, SAVE7
+      RET
+BIZ   AND  R2, R2, #0
+      ADD  R2, R2, #1
+      ADD  R0, R0, R2;LD to print
+      ADD  R0, R0, R3;conv asci
+      ST   R7, SAVE7
+      TRAP x21
+      LD   R7, SAVE7
+      RET
+
+
+
 VEC   .FILL x4001
-MASK  .FILL x00FF
+MASK1 .FILL x00FF
+MASK2 .FILL x0000 ;update
 ASCI  .FILL x0030
 SAVE7 .BLKW #1
       .END
