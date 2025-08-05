@@ -31,7 +31,7 @@ FREE  ADD  R2, R2, #1
 ;ALL subroutine returns 1
 ;if all machines are busy
 ALL   LDI  R1, VEC ;busyness ve
-      LD   R2, MASK1; 
+      LD   R2, FFFF; 
       LD   R3, ASCI
       AND  R0, R0, #0
       AND  R2, R1, R2 ;check busy
@@ -55,7 +55,7 @@ BIZ   AND  R2, R2, #0
 
 VEC   .FILL x4001
 MASK1 .FILL x00FF
-MASK2 .FILL x0000 ;update
+FFFF  .FILL xFFFF update
 ASCI  .FILL x0030
 SAVE7 .BLKW #1
       .END
