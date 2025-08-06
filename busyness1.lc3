@@ -1,4 +1,8 @@
-about to attach my updated program with these subs added. didn’t look at your message because i didn’t ask for answers                                                                                                                               ;busyness vec subroutines test ;if no machines are busy ;0 if 1 or more machines busy .ORIG x3000
+                                                                                      
+;busyness vec subroutines test ;
+;if no machines are busy
+ ;0 if 1 or more machines busy 
+.ORIG x3000
 
 CHECK JSR  NONE 
       JSR  ALL 
