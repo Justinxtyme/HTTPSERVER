@@ -3,20 +3,20 @@
 ;0 if 1 or more machines busy
 .ORIG x3000
 
-CHECK JSR  NONE;
+CHECK JSR  NONE 
       JSR  ALL
       JSR  COUNT
       TRAP x25
 ;NONE subroutine returns 1 if 
 ;none of the machines are busy 
-NONE  LDI  R1, VEC ;busyness ve
+NONE  ST   R7, SAVE7
+      LDI  R1, VEC ;busyness ve
       LD   R2, MASK1  ; 
       LD   R3, ASCI
       AND  R0, R0, #0
       AND  R2, R1, R2 ;check busy
       BRz  FREE
 BUSY  ADD  R0, R0, R3;conv asci
-      ST   R7, SAVE7
       TRAP x21
       LD   R0, NLINE
       TRAP x21
@@ -25,7 +25,6 @@ BUSY  ADD  R0, R0, R3;conv asci
 FREE  ADD  R2, R2, #1
       ADD  R0, R0, R2;LD to print
       ADD  R0, R0, R3;conv asci
-      ST   R7, SAVE7
       TRAP x21
       LD   R0, NLINE
       TRAP x21
@@ -34,15 +33,15 @@ FREE  ADD  R2, R2, #1
 
 ;ALL subroutine returns 1
 ;if all machines are busy
-ALL   LDI  R1, VEC ;busyness ve
-      LD   R2, FFFF; 
+ALL   ST   R7, SAVE7
+      LDI  R1, VEC ;busyness ve
+      LD   R2, FFFF ; 
       LD   R3, ASCI
       AND  R0, R0, #0
       AND  R2, R1, R2 ;if AND+1=0
-      ADD  R2, R2, #1; then all
+      ADD  R2, R2, #1 ; then all
       BRz  BIZ       ;machines busy
       ADD  R0, R0, R3
-      ST   R7, SAVE7
       TRAP x21
       LD   R0, NLINE
       TRAP x21
@@ -59,29 +58,27 @@ BIZ   AND  R2, R2, #0
       LD   R7, SAVE7
       RET
 
-;COUNT bitshift right, AND with
-; #1. increment if positive? 
-COUNT LDI  R1, VEC
-      LD   R2, FFFF
-      AND  R3, R3, #0
-      AND  R0, R0, #0
-      AND  R4, R4, #0
-      AND  R5, R5, #0
-      ADD  R5, R5, #7;counter
-      AND  R2, R1, R2;add bitm.
-LOOP  ADD  R4, R4, R2; copy
-      AND  R4, R2, #1
+; Count returns the amount of busy machines
+; AND busyness vec with moving bitmask
+COUNT ST   R7, SAVE7
+      LDI  R1, VEC ;busyness vec
+      AND  R3, R3, #0 ; tally for busy
+      AND  R0, R0, #0 ; moving bitmask
+      ADD  R0, R0, #1 ; mving bitmask starts at 1
+      AND  R4, R4, #0 ;
+      AND  R5, R5, #0 ; counter for
+      ADD  R5, R5, #8 ; 8 left bitshifts
+
+LOOP  AND  R4, R1, R0 ;
       BRz  SKIP
-      ADD  R3, R1, #1
-;ahift bitm. not R2! fix!
-SKIP  ADD  R2, R2, R2;shift bit
-      AND  R4, R4, #0
-      ADD  R5, R5, #-1
+      ADD  R3, R3, #1 ;increment
+SKIP  ADD  R0, R0, R0 ;shift bitmask
+      ADD  R5, R5, #-1 ;decrement counter
       BRp  LOOP
+      AND  R0, R0, #0 ;clear R0
       ADD  R0, R0, R3
       LD   R3, ASCI
       ADD  R0, R0, R3
-      ST   R7, SAVE7
       TRAP x21
       LD   R0, NLINE
       TRAP x21
