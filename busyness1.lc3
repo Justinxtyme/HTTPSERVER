@@ -14,9 +14,7 @@ NONE  LDI  R1, VEC ;busyness ve
       AND  R0, R0, #0
       AND  R2, R1, R2 ;check busy
       BRz  FREE
-BUSY  AND  R2, R2, #0
-      ADD  R0, R0, R2;LD to print
-      ADD  R0, R0, R3;conv asci
+BUSY  ADD  R0, R0, R3;conv asci
       ST   R7, SAVE7
       TRAP x21
       LD   R0, NLINE
@@ -60,6 +58,19 @@ BIZ   AND  R2, R2, #0
       LD   R7, SAVE7
       RET
 
+;COUNT bitshift right, AND with
+; #1. increment if positive? 
+COUNT LDI  R1, VEC
+      LD   R2, FFFF
+      LD   R3, ASCI
+      AND  R0, R0, #0
+      AND  R4, R4, #0
+      AND  R5, R5, #0
+      ADD  R5, R5, #7;counter
+      AND  R2, R1, R2;add bitm.
+      ADD  R4, R4, R2
+      
+      
 
 
 VEC   .FILL x4001; address 4 vec
