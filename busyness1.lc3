@@ -1,12 +1,13 @@
-;busyness vec subroutine test
-;subroutine NONE returns 1
+;busyness vec subroutines test
 ;if no machines are busy
 ;0 if 1 or more machines busy
 .ORIG x3000
 
 CHECK JSR  NONE;
+      JSR  ALL
       TRAP x25
-;NONE subroutine
+;NONE subroutine returns 1 if 
+;none of the machines are busy 
 NONE  LDI  R1, VEC ;busyness ve
       LD   R2, MASK1  ; 
       LD   R3, ASCI
@@ -18,12 +19,16 @@ BUSY  AND  R2, R2, #0
       ADD  R0, R0, R3;conv asci
       ST   R7, SAVE7
       TRAP x21
+      LD   R0, NLINE
+      TRAP x21
       LD   R7, SAVE7
       RET
 FREE  ADD  R2, R2, #1
       ADD  R0, R0, R2;LD to print
       ADD  R0, R0, R3;conv asci
       ST   R7, SAVE7
+      TRAP x21
+      LD   R0, NLINE
       TRAP x21
       LD   R7, SAVE7
       RET
@@ -34,11 +39,13 @@ ALL   LDI  R1, VEC ;busyness ve
       LD   R2, FFFF; 
       LD   R3, ASCI
       AND  R0, R0, #0
-      AND  R2, R1, R2 ;check busy
-      ADD  R2, R2, #1
-      BRz  BIZ
+      AND  R2, R1, R2 ;if AND+1=0
+      ADD  R2, R2, #1; then all
+      BRz  BIZ       ;machines busy
       ADD  R0, R0, R3
       ST   R7, SAVE7
+      TRAP x21
+      LD   R0, NLINE
       TRAP x21
       LD   R7, SAVE7
       RET
@@ -48,14 +55,18 @@ BIZ   AND  R2, R2, #0
       ADD  R0, R0, R3;conv asci
       ST   R7, SAVE7
       TRAP x21
+      LD   R0, NLINE
+      TRAP x21
       LD   R7, SAVE7
       RET
 
 
 
-VEC   .FILL x4001
-MASK1 .FILL x00FF
-FFFF  .FILL xFFFF update
-ASCI  .FILL x0030
-SAVE7 .BLKW #1
+VEC   .FILL x4001; address 4 vec
+MASK1 .FILL x00FF; NONE mask
+FFFF  .FILL xFFFF; ALL mask(kinda)
+ASCI  .FILL x0030; asci conversion 
+SAVE7 .BLKW #1 ; for saving R7
+NLINE .FILL x000A; ascii 4 newline
+
       .END
