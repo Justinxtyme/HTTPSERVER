@@ -5,6 +5,7 @@
 
 CHECK JSR  NONE;
       JSR  ALL
+      JSR  COUNT
       TRAP x25
 ;NONE subroutine returns 1 if 
 ;none of the machines are busy 
@@ -76,6 +77,15 @@ SKIP  ADD  R2, R2, R2;shift bit
       AND  R4, R4, #0
       ADD  R5, R5, #-1
       BRp  LOOP
+      ADD  R0, R0, R3
+      LD   R3, ASCI
+      ADD  R0, R0, R3
+      ST   R7, SAVE7
+      TRAP x21
+      LD   R0, NLINE
+      TRAP x21
+      LD   R7, SAVE7
+      RET
 
       
       
