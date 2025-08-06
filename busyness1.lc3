@@ -73,6 +73,7 @@ LOOP  ADD  R4, R4, R2; copy
       AND  R4, R2, #1
       BRz  SKIP
       ADD  R3, R1, #1
+;ahift bitm. not R2! fix!
 SKIP  ADD  R2, R2, R2;shift bit
       AND  R4, R4, #0
       ADD  R5, R5, #-1
