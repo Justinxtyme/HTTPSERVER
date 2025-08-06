@@ -62,13 +62,23 @@ BIZ   AND  R2, R2, #0
 ; #1. increment if positive? 
 COUNT LDI  R1, VEC
       LD   R2, FFFF
-      LD   R3, ASCI
+      AND  R3, R3, #0
       AND  R0, R0, #0
       AND  R4, R4, #0
       AND  R5, R5, #0
       ADD  R5, R5, #7;counter
       AND  R2, R1, R2;add bitm.
-      ADD  R4, R4, R2
+LOOP  ADD  R4, R4, R2; copy
+      AND  R4, R2, #1
+      BRz  SKIP
+      ADD  R3, R1, #1
+SKIP  ADD  R2, R2, R2;shift bit
+      AND  R4, R4, #0
+      ADD  R5, R5, #-1
+      BRp  LOOP
+
+      
+      
       
       
 
