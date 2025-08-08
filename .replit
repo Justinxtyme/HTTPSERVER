@@ -1,8 +1,9 @@
-modules = ["python-3.12", "web"]
+modules = ["python-3.12", "web", "c-clang14"]
 run = "launchserv"
 
 [nix]
 channel = "stable-24_05"
+packages = ["nano", "run"]
 
 [deployment]
 run = ["sh", "-c", "launchserv"]
