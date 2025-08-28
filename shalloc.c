@@ -10,3 +10,7 @@ typedef struct Chunk {
   Chunk *next; 
 } Chunk; 
 
+char heaperz[HEAP_SIZE];
+
+Chunk *free_head = heaperz;
+
