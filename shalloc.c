@@ -6,7 +6,7 @@
 
 typedef struct Chunk {
   size_t size;
-  bool free = true;
+  bool free = 1;
   Chunk *next; 
 } Chunk; 
 
